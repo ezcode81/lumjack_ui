@@ -31,5 +31,5 @@ jobs:
           username: ${{ secrets.DSM_USER }}
           password: ${{ secrets.DSM_PASS }}
           source: "build/*"
-          target: "/volume1/docker/lumjack_ui/build"
+          target: "/volume1/docker/lumjack_ui"
 
