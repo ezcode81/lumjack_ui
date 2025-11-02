@@ -13,6 +13,8 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
+import { useEffect, useState } from "react";
+
 // @mui material components
 import Grid from "@mui/material/Grid";
 
@@ -37,6 +39,56 @@ import OrdersOverview from "layouts/dashboard/components/OrdersOverview";
 
 function Dashboard() {
   const { sales, tasks } = reportsLineChartData;
+
+  const [barChart, setBarChart] = useState(reportsBarChartData);
+  const [barDateText, setBarDateText] = useState("loading...");
+
+  useEffect(() => {
+    let isActive = true;
+    const url = "http://ezcode.ddns.net:8090/api/lumsumday?workdate=20251102";
+    async function load() {
+      try {
+        const res = await fetch(url);
+        const json = await res.json();
+
+        // Aggregate by chrid: sum of qty per chrid (safe fallbacks)
+        let labels = [];
+        let data = [];
+        if (Array.isArray(json) && json.length > 0 && typeof json[0] === "object") {
+          const sums = new Map();
+          json.forEach((it, idx) => {
+            const key = it.chrid !== undefined ? String(it.chrid) : String(idx + 1);
+            const val = it.qty !== undefined ? Number(it.qty) || 0 : 0;
+            sums.set(key, (sums.get(key) || 0) + val);
+          });
+          labels = Array.from(sums.keys());
+          data = Array.from(sums.values());
+        } else if (json && json.labels && json.datasets) {
+          labels = json.labels;
+          data = json.datasets.data || [];
+        }
+
+        if (labels.length && data.length && isActive) {
+          setBarChart({ labels, datasets: { label: "qty total", data } });
+          const now = new Date();
+          setBarDateText(`updated ${now.getHours()}:${String(now.getMinutes()).padStart(2, "0")}`);
+        } else if (isActive) {
+          setBarChart(reportsBarChartData);
+          setBarDateText("no data, using defaults");
+        }
+      } catch (e) {
+        if (isActive) {
+          setBarChart(reportsBarChartData);
+          setBarDateText("failed to load, using defaults");
+          // optional: console.error(e);
+        }
+      }
+    }
+    load();
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   return (
     <DashboardLayout>
@@ -105,18 +157,18 @@ function Dashboard() {
         </Grid>
         <MDBox mt={4.5}>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6} lg={4}>
+            <Grid item xs={12} md={6} lg={6}>
               <MDBox mb={3}>
                 <ReportsBarChart
                   color="info"
                   title="website views"
                   description="Last Campaign Performance"
-                  date="campaign sent 2 days ago"
-                  chart={reportsBarChartData}
+                  date={barDateText}
+                  chart={barChart}
                 />
               </MDBox>
             </Grid>
-            <Grid item xs={12} md={6} lg={4}>
+            <Grid item xs={12} md={6} lg={6}>
               <MDBox mb={3}>
                 <ReportsLineChart
                   color="success"
@@ -131,7 +183,7 @@ function Dashboard() {
                 />
               </MDBox>
             </Grid>
-            <Grid item xs={12} md={6} lg={4}>
+            <Grid item xs={12} md={12} lg={12}>
               <MDBox mb={3}>
                 <ReportsLineChart
                   color="dark"

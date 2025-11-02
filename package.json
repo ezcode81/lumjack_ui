@@ -29,14 +29,14 @@
     "react-scripts": "5.0.1",
     "react-table": "7.8.0",
     "stylis": "4.1.4",
-    "stylis-plugin-rtl": "2.1.1",
+    "stylis-plugin-rtl": "^2.1.1",
     "yup": "1.1.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
+    "start": "cross-env GENERATE_SOURCEMAP=false react-scripts start",
+  "build": "cross-env GENERATE_SOURCEMAP=false react-scripts build",
+  "test": "react-scripts test",
+  "eject": "react-scripts eject",
     "install:clean": "rm -rf node_modules/ && rm -rf package-lock.json && npm install && npm start"
   },
   "eslintConfig": {
@@ -59,6 +59,7 @@
   },
   "devDependencies": {
     "ajv": "^7.2.4",
+    "cross-env": "^10.1.0",
     "eslint": "8.39.0",
     "eslint-config-prettier": "8.8.0",
     "eslint-plugin-import": "2.27.5",
