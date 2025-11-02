@@ -3,7 +3,8 @@ name: Deploy to DSM via SSH
 on:
   push:
     branches:
-      - main
+      - develop
+      
 
 jobs:
   build-deploy:
@@ -32,4 +33,3 @@ jobs:
           source: "build/*"
           target: "/volume1/docker/lumjack_ui/build"
 
-          
